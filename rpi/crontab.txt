@@ -1,0 +1,13 @@
+# Rebooth RPI at 7:10pm
+10 19 * * * (sudo reboot || exit 1)
+
+# Downlaod network configuration file at 7:00pm
+0 19 * * * (cd /etc/wpa_supplicant/ || exit 1; sudo rm -f /p/a/t/h wpa_supplicant_new.conf || exit 1; sudo wget https://dl.dropboxusercontent.com/u/18280413/rpi_sys/wpa_supplicant_new.conf -O wpa_supplicant_new.conf || exit 1; sudo rm -f /p/a/t/h wpa_supplicant.conf || exit 1; sudo cp -rf wpa_supplicant_new.conf wpa_supplicant.conf || exit 1)
+
+# Run python scripts after reboot
+@reboot (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/test.py &)
+@reboot (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/main.py &)
+
+# Run python script every hour at 0 minute
+0 * * * * (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/main.py &)
+0 * * * * (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/test.py &)

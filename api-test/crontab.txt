@@ -1,0 +1,5 @@
+# Run at 1am every day
+0 1 * * * python /var/www/html/parking-lots-python/batchclean.py 1>> /dev/null 2>&1
+
+
+

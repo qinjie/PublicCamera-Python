@@ -1,0 +1,150 @@
+import calendar
+import json
+import os
+import sys
+import threading
+from datetime import date, datetime
+from time import sleep
+
+import picamera
+from requests.auth import HTTPBasicAuth
+
+from floorsetting import FloorSetting
+from node import Node
+from nodefile import NodeFile
+from rpi_utils import get_logger
+from utils import time_in_range, make_sure_path_exist
+
+__author__ = 'zqi2'
+
+## ## Put scripts to /home/pi/python_patient_tracking folder. Edit the crontab to run the script at startup
+## crontab -e
+## ## Add following line to crontab so that it will run once after boot
+## @reboot /usr/bin/python /home/pi/python_patient_tracking/quuppa_batch_job.py &
+
+if __name__ == '__main__':
+
+    # # Read options from command line
+    # argParser = argparse.ArgumentParser('API Entity')
+    # argParser.add_argument('-c', '--configFile', help="Configuration file", required=False)
+    # argParser.add_argument('-s', '--configSession', help="Configuration session", required=False)
+    # argParser.add_argument('-u', '--username', help="Username", required=False)
+    # argParser.add_argument('-p', '--password', help="Password", required=False)
+    # args = argParser.parse_args()
+
+    # timestamp_file = 'last_job_timestamp.txt'
+    # touch(timestamp_file)
+
+    FLOOR_ID = 3
+    NODE_ID = 4
+
+    setting_interval = 15  # default 15 sec for testing
+    PHOTO_PATH = '/home/pi/python_batch/photo/'
+
+    username = 'user1'
+    password = '123456'
+    auth = HTTPBasicAuth(username, password)
+
+    # Get the logger
+    logger = get_logger(name='batch_take_photos', reset_handlers=True, log_file='batch.log', log_console=True)
+
+    # Get node label
+    node = Node()
+    nr = node.view(NODE_ID)
+    nj = json.loads(nr.text)
+    node_label = nj['label']
+
+    # Get floor settings form web service
+    entity = FloorSetting()
+    resp = entity.search('floorId={0}'.format(FLOOR_ID), auth)
+    j = json.loads(resp.text)
+    if 'items' not in j:
+        logger.error("No items in returned json")
+        sys.exit()
+
+    # Create a setting map for this floor
+    setting_map = {}
+    for obj in j['items']:
+        setting_map[obj['label']] = obj['value']
+    logger.info(setting_map)
+
+    # check weekday
+    logger.info("Check weekday setting")
+    my_date = date.today()
+    my_weekday = calendar.day_name[my_date.weekday()].lower()
+    if my_weekday in setting_map:
+        if int(setting_map[my_weekday]) == 0:
+            logger.info("No work on " + my_weekday)
+            sys.exit()
+
+    # Check start time and end time
+    if ('start_time' in setting_map) and ('end_time' in setting_map):
+        print "Check start_time and end_time settings"
+        start_time = datetime.strptime(setting_map['start_time'], '%H:%M').time()
+        end_time = datetime.strptime(setting_map['end_time'], '%H:%M').time()
+        cur_time = datetime.now().time()
+
+        if not time_in_range(start_time, end_time, cur_time):
+            logger.info("No work outside {0} and {1}".format(start_time, end_time))
+            sys.exit()
+
+    # Update interval
+    if 'interval' in setting_map:
+        setting_interval = int(setting_map['interval'])
+        logger.info("Interval setting from webservice = {0}".format(setting_interval))
+
+
+    def upload_photo(args):
+        out_file = str(args)
+        if not os.path.isfile(out_file):
+            logger.error("file not found: {0}".format(out_file))
+            return
+        entity = NodeFile()
+
+        # UPLOAD
+        payload = {'nodeId': 4, 'fileName': out_file, 'label': node_label}
+        r = entity.upload(payload, auth)
+        if r.status_code == 200:
+            logger.info("Upload successful: {0}".format(out_file))
+
+
+    def threaded_photo_upload(my_arg):
+        thread = threading.Thread(target=upload_photo, args=my_arg)
+        thread.start()
+
+
+    def init_camera():
+        camera.vflip = False
+        camera.hflip = False
+        camera.brightness = 50
+        camera.resolution = (640, 480)
+        camera.framerate = 24
+        # camera.annotate_background = picamera.Color('black')
+        camera.annotate_text_size = 12
+        camera.annotate_foreground = picamera.Color('white')
+
+
+    def take_photos():
+        # sec_per_hour = 60
+        sec_per_hour = 60 * 60
+        count = sec_per_hour // setting_interval
+
+        camera.start_preview()
+        for i in range(count):
+            t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            camera.annotate_text = "{0} {1}".format(node_label, t)
+            sleep(0.5)
+            out_file = os.path.join(PHOTO_PATH, 'image%03d.jpg' % i)
+            camera.capture(out_file)
+            sleep(0.5)
+            threaded_photo_upload([out_file])
+            sleep(setting_interval - 1)
+
+        camera.stop_preview()
+
+
+    # take photos
+    with picamera.PiCamera() as camera:
+        make_sure_path_exist(PHOTO_PATH)
+        init_camera()
+        take_photos()
