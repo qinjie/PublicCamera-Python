@@ -17,11 +17,6 @@ from utils import time_in_range, make_sure_path_exist
 
 __author__ = 'zqi2'
 
-## ## Put scripts to /home/pi/python_patient_tracking folder. Edit the crontab to run the script at startup
-## crontab -e
-## ## Add following line to crontab so that it will run once after boot
-## @reboot /usr/bin/python /home/pi/python_patient_tracking/quuppa_batch_job.py &
-
 if __name__ == '__main__':
 
     # # Read options from command line
@@ -32,18 +27,24 @@ if __name__ == '__main__':
     # argParser.add_argument('-p', '--password', help="Password", required=False)
     # args = argParser.parse_args()
 
-    # timestamp_file = 'last_job_timestamp.txt'
-    # touch(timestamp_file)
 
-    FLOOR_ID = 3
-    NODE_ID = 4
+	# configuration file and section name
+    _config_file = 'batch.ini'
+    # use <country> for testing purpose
+    _config_section = 'default'
 
-    setting_interval = 15  # default 15 sec for testing
-    PHOTO_PATH = '/home/pi/python_batch/photo/'
+	parser = ConfigParser.SafeConfigParser()
+	parser.read(_config_file)
+	parser.defaults()
 
-    username = 'user1'
-    password = '123456'
+	FLOOR_ID = parser.get('default', 'floor_id')
+	NODE_ID = parser.get('default', 'node_id')
+    username = parser.get('default', 'username')
+    password = parser.get('default', 'password')
     auth = HTTPBasicAuth(username, password)
+    setting_interval = parser.get('default', 'interval_seconds')
+
+	PHOTO_PATH = '/home/pi/python_batch/photo/'
 
     # Get the logger
     logger = get_logger(name='batch_take_photos', reset_handlers=True, log_file='batch.log', log_console=True)
@@ -125,9 +126,8 @@ if __name__ == '__main__':
 
 
     def take_photos():
-        # sec_per_hour = 60
-        sec_per_hour = 60 * 60
-        count = sec_per_hour // setting_interval
+        secconds = 60		# per minute
+        count = secconds // setting_interval
 
         camera.start_preview()
         for i in range(count):

@@ -1,13 +1,48 @@
-# Rebooth RPI at 7:10pm
-10 19 * * * (sudo reboot || exit 1)
+# Edit this file to introduce tasks to be run by cron.
+# 
+# Each task to run has to be defined through a single line
+# indicating with different fields when the task will be run
+# and what command to run for the task
+# 
+# To define the time you can provide concrete values for
+# minute (m), hour (h), day of month (dom), month (mon),
+# and day of week (dow) or use '*' in these fields (for 'any').# 
+# Notice that tasks will be started based on the cron's system
+# daemon's notion of time and timezones.
+# 
+# Output of the crontab jobs (including errors) is sent through
+# email to the user the crontab file belongs to (unless redirected).
+# 
+# For example, you can run a backup of all your user accounts
+# at 5 a.m every week with:
+# 0 5 * * 1 tar -zcf /var/backups/home.tgz /home/
+# 
+# For more information see the manual pages of crontab(5) and cron(8)
+# 
+# m h  dom mon dow   command
+
+#@reboot python /home/pi/Adafruit-Raspberry-Pi-Python-Code/Adafruit_CharLCD/Adafruit_CharLCD_IPclock_example.py
+#@reboot sh /home/pi/launcher.sh >/home/pi/logs/cronlog 2>&1
+
+# Reboot at mid night
+0 0 * * * root reboot
+
+# Check wifi status Reboot if lost wifi
+*/5 * * * * /usr/bin/sudo -H /home/pi/python_batch/checkwifi.sh >> /dev/null 2>&1
+
+# Clean up memory
+0 0 * * *  /home/pi/python_batch/cleantemp.sh
+
+# Take photo and upload
+#@reboot sh /home/pi/Work/launcher.sh &
+#*/1 * * * * sh /home/pi/Work/launcher.sh
 
 # Downlaod network configuration file at 7:00pm
 0 19 * * * (cd /etc/wpa_supplicant/ || exit 1; sudo rm -f /p/a/t/h wpa_supplicant_new.conf || exit 1; sudo wget https://dl.dropboxusercontent.com/u/18280413/rpi_sys/wpa_supplicant_new.conf -O wpa_supplicant_new.conf || exit 1; sudo rm -f /p/a/t/h wpa_supplicant.conf || exit 1; sudo cp -rf wpa_supplicant_new.conf wpa_supplicant.conf || exit 1)
 
-# Run python scripts after reboot
-@reboot (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/test.py &)
-@reboot (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/main.py &)
+# Update IP address after reboot and every hour at 0 minute
+@reboot (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/batch_update_ip.py &)
+0 * * * * (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/batch_update_ip.py &)
 
-# Run python script every hour at 0 minute
-0 * * * * (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/main.py &)
-0 * * * * (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/test.py &)
+# Take photo and upload every minute
+* * * * * (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/batch_take_photos.py &)
