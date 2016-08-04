@@ -7,7 +7,7 @@ testfiles/
 
 *.iml
 
-*.log.txt
+*log.txt
 
 ## Directory-based project format:
 .idea/
