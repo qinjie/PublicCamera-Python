@@ -27,18 +27,14 @@
 # Reboot at mid night
 0 0 * * * root reboot
 
-# Check wifi status Reboot if lost wifi
-*/5 * * * * /usr/bin/sudo -H /home/pi/python_batch/checkwifi.sh >> /dev/null 2>&1
+# Check wifi status Reboot if lost wifi every hour
+0 * * * * /usr/bin/sudo -H /home/pi/python_batch/checkwifi.sh >> /dev/null 2>&1
 
-# Clean up memory
-0 0 * * *  /home/pi/python_batch/cleantemp.sh
+# Clean up memory every 30 minutes
+0/30 * * * *  /home/pi/python_batch/cleantemp.sh
 
-# Take photo and upload
-#@reboot sh /home/pi/Work/launcher.sh &
-#*/1 * * * * sh /home/pi/Work/launcher.sh
-
-# Downlaod network configuration file at 7:00pm
-0 19 * * * (cd /etc/wpa_supplicant/ || exit 1; sudo rm -f /p/a/t/h wpa_supplicant_new.conf || exit 1; sudo wget https://dl.dropboxusercontent.com/u/18280413/rpi_sys/wpa_supplicant_new.conf -O wpa_supplicant_new.conf || exit 1; sudo rm -f /p/a/t/h wpa_supplicant.conf || exit 1; sudo cp -rf wpa_supplicant_new.conf wpa_supplicant.conf || exit 1)
+# Downlaod network configuration file every 10 minutes
+*/10 * * * * (cd /etc/wpa_supplicant/ || exit 1; sudo rm -f /p/a/t/h wpa_supplicant_new.conf || exit 1; sudo wget https://dl.dropboxusercontent.com/u/18280413/rpi_sys/wpa_supplicant_new.conf -O wpa_supplicant_new.conf || exit 1; sudo rm -f /p/a/t/h wpa_supplicant.conf || exit 1; sudo cp -rf wpa_supplicant_new.conf wpa_supplicant.conf || exit 1)
 
 # Update IP address after reboot and every hour at 0 minute
 @reboot (cd /home/pi/python_batch/ || exit 1; /usr/bin/python /home/pi/python_batch/batch_update_ip.py &)

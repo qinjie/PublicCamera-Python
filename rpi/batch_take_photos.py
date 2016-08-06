@@ -1,3 +1,4 @@
+import ConfigParser
 import calendar
 import json
 import os
@@ -28,23 +29,23 @@ if __name__ == '__main__':
     # args = argParser.parse_args()
 
 
-	# configuration file and section name
+    # configuration file and section name
     _config_file = 'batch.ini'
     # use <country> for testing purpose
     _config_section = 'default'
 
-	parser = ConfigParser.SafeConfigParser()
-	parser.read(_config_file)
-	parser.defaults()
+    parser = ConfigParser.SafeConfigParser()
+    parser.read(_config_file)
+    parser.defaults()
 
-	FLOOR_ID = parser.get('default', 'floor_id')
-	NODE_ID = parser.get('default', 'node_id')
+    FLOOR_ID = parser.getint('default', 'floor_id')
+    NODE_ID = parser.getint('default', 'node_id')
     username = parser.get('default', 'username')
     password = parser.get('default', 'password')
     auth = HTTPBasicAuth(username, password)
-    setting_interval = parser.get('default', 'interval_seconds')
-
-	PHOTO_PATH = '/home/pi/python_batch/photo/'
+    setting_interval = parser.getint('default', 'interval_seconds')
+    PHOTO_PATH = parser.get('default', 'photo_path')
+    batch_duration_seconds = parser.getint('default', 'batch_duration_seconds')
 
     # Get the logger
     logger = get_logger(name='batch_take_photos', reset_handlers=True, log_file='batch.log', log_console=True)
@@ -103,7 +104,7 @@ if __name__ == '__main__':
         entity = NodeFile()
 
         # UPLOAD
-        payload = {'nodeId': 4, 'fileName': out_file, 'label': node_label}
+        payload = {'nodeId': NODE_ID, 'fileName': out_file, 'label': node_label}
         r = entity.upload(payload, auth)
         if r.status_code == 200:
             logger.info("Upload successful: {0}".format(out_file))
@@ -114,7 +115,7 @@ if __name__ == '__main__':
         thread.start()
 
 
-    def init_camera():
+    def init_camera(camera):
         camera.vflip = False
         camera.hflip = False
         camera.brightness = 50
@@ -125,12 +126,12 @@ if __name__ == '__main__':
         camera.annotate_foreground = picamera.Color('white')
 
 
-    def take_photos():
-        secconds = 60		# per minute
-        count = secconds // setting_interval
+    def take_photo(i):
+        with picamera.PiCamera() as camera:
+            init_camera(camera)
 
-        camera.start_preview()
-        for i in range(count):
+            camera.start_preview()
+
             t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             camera.annotate_text = "{0} {1}".format(node_label, t)
             sleep(0.5)
@@ -138,13 +139,18 @@ if __name__ == '__main__':
             camera.capture(out_file)
             sleep(0.5)
             threaded_photo_upload([out_file])
-            sleep(setting_interval - 1)
 
-        camera.stop_preview()
+            camera.stop_preview()
+
+
+    def take_photos():
+        count = batch_duration_seconds // setting_interval
+
+        for i in range(count):
+            threading.Timer(i * setting_interval, take_photo, (i,)).start()
 
 
     # take photos
-    with picamera.PiCamera() as camera:
-        make_sure_path_exist(PHOTO_PATH)
-        init_camera()
-        take_photos()
+    make_sure_path_exist(PHOTO_PATH)
+    take_photos()
+

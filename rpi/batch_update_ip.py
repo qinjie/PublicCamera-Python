@@ -1,3 +1,4 @@
+import ConfigParser
 import sys
 
 from requests.auth import HTTPBasicAuth
@@ -26,11 +27,25 @@ if __name__ == '__main__':
     # timestamp_file = 'last_job_timestamp.txt'
     # touch(timestamp_file)
 
-    NODE_ID = 4
 
-    username = 'user1'
-    password = '123456'
+
+    # configuration file and section name
+    _config_file = 'batch.ini'
+    # use <country> for testing purpose
+    _config_section = 'default'
+
+    parser = ConfigParser.SafeConfigParser()
+    parser.read(_config_file)
+    parser.defaults()
+
+    FLOOR_ID = parser.get('default', 'floor_id')
+    NODE_ID = parser.get('default', 'node_id')
+    username = parser.get('default', 'username')
+    password = parser.get('default', 'password')
     auth = HTTPBasicAuth(username, password)
+    setting_interval = parser.get('default', 'interval_seconds')
+    PHOTO_PATH = parser.get('default', 'photo_path')
+
 
     # Get the logger
     logger = get_logger(name='batch_update_ip', reset_handlers=True, log_file='log_update_ip.log', log_console=True)

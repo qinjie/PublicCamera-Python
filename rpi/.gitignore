@@ -8,6 +8,8 @@ testfiles/
 *.iml
 
 *log.txt
+*.pyc
+photo/
 
 ## Directory-based project format:
 .idea/
