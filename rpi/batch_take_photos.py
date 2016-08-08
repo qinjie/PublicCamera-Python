@@ -130,17 +130,18 @@ if __name__ == '__main__':
         with picamera.PiCamera() as camera:
             init_camera(camera)
 
-            camera.start_preview()
-
+            #camera.rotation = 90
             t = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             camera.annotate_text = "{0} {1}".format(node_label, t)
-            sleep(0.5)
             out_file = os.path.join(PHOTO_PATH, 'image%03d.jpg' % i)
+
+            camera.start_preview()
+            sleep(0.5)
             camera.capture(out_file)
             sleep(0.5)
-            threaded_photo_upload([out_file])
-
             camera.stop_preview()
+
+            threaded_photo_upload([out_file])
 
 
     def take_photos():

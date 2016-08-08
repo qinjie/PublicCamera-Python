@@ -61,12 +61,13 @@ if __name__ == '__main__':
     def update_ip():
         entity = NodeSetting()
         ip = get_ip_address('wlan0')
-        data = {'nodeId': NODE_ID, 'label': 'wlan0_ip', 'value': ip}
-        r = entity.create(data, auth)
+        if not ip is None:
+            data = {'nodeId': NODE_ID, 'label': 'wlan0_ip', 'value': ip}
+            r = entity.create(data, auth)
         ip = get_ip_address('eth0')
-        data = {'nodeId': NODE_ID, 'label': 'eth0_ip', 'value': ip}
-        r = entity.create(data, auth)
-
+        if not ip is None:
+            data = {'nodeId': NODE_ID, 'label': 'eth0_ip', 'value': ip}
+            r = entity.create(data, auth)
 
     # update IP address of RPI for SSH
     update_ip()
