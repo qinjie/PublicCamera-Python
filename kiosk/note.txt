@@ -1,0 +1,1 @@
+Script to display latest images from each camera on monitor. These scripts will be run on RPi which connects to monitor through HDMI.
