@@ -127,7 +127,6 @@ class MainScreen(GridLayout):
 
         self.bind(size=self._update_rect, pos=self._update_rect)
 
-
         _images = [join(imageDirectory, f) for f in listdir(imageDirectory) if isfile(join(imageDirectory, f))]
         _charts = [join(chartDirectory, f) for f in listdir(chartDirectory) if isfile(join(chartDirectory, f))]
 
@@ -137,7 +136,8 @@ class MainScreen(GridLayout):
             self.image = ImageButton(title='Cameras',source=_image, on_press=self.showDialog)
             self.add_widget(self.image)
 
-        self.add_widget(Widget())
+        if len(_images) == 2:
+            self.add_widget(Widget())
         for _chart in _charts:
             self.chart = ImageButton(title='Chart',source=_chart,on_press=self.showDialog)
             self.add_widget(self.chart)
@@ -152,7 +152,6 @@ class MainScreen(GridLayout):
         # dialog.run()
         popup = Popup(title='bigger image', content=Image(source=instance.source), size_hint=(None, None), size=(1600, 900))
         popup.open()
-
 
 class MainDisplay(App):
     def __init__(self, imageDirectory, chartDirectory):
