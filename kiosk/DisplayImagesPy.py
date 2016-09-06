@@ -1,0 +1,207 @@
+from kivy.app import App
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.layout import Layout
+from kivy.uix.image import Image
+from kivy.uix.popup import Popup
+from kivy.uix.widget import Widget
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.config import Config
+from kivy.graphics import Color, Rectangle
+from kivy.clock import Clock
+
+import numpy as np
+from scipy.interpolate import spline
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from os import listdir, mkdir
+from os.path import isfile, join, exists
+
+import requests
+import APIConstant
+
+import time
+# from Masking import doMasking
+
+
+def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
+    r = requests.get(APIConstant.API_HOST + APIConstant.LIST_BY_FLOOR_AND_LABEL + '/' + str(floorId) + '/' + label);
+
+    if r.status_code != 200:
+        print 'Error, code: ', str(r.status_code)
+        return None
+
+    data = r.json()
+
+    data = sorted(data, key=lambda x:x['created'])
+
+    # for record in data:
+    #     print record
+
+    if maxDataPoints == -1 or maxDataPoints >= len(data):
+        return data
+
+    return data[len(data) - maxDataPoints :]
+
+def getNodeListByFloor(floorId):
+    API_URL = APIConstant.API_HOST + APIConstant.SEARCH_BY_FLOOR + '?' + 'floorId=' + str(floorId)
+    r = requests.get(API_URL)
+
+    if r.status_code != 200:
+        print 'Error, code ', str(r.status_code)
+        return None
+
+    nodes = r.json().get('items')
+
+    # for node in nodes:
+    #     print node
+
+    return nodes
+
+def drawChart(data, chartDirectory):
+
+    size = len(data)
+
+    y = [point['value'] for point in data]
+    # print y
+    xtick = [point['marker'] for point in data]
+    x = np.array(range(size))
+
+    medium = [np.mean(y) for i in range(size)]
+
+    xnew = np.linspace(x.min(), x.max(), size * 100)
+    ynew = spline(x, y, xnew)
+    ynew[ynew < 0] = 0
+
+    plt.plot(xnew, ynew, x, medium)
+    plt.fill_between(xnew, ynew, alpha=.3)
+
+    plt.xticks(x, xtick)
+
+    plt.xlabel('Time')
+    plt.ylabel('Crowd Index')
+
+    sns.set_style('dark')
+    sns.despine(trim=True)
+
+    # plt.show()
+
+    if not exists(chartDirectory):
+        mkdir(chartDirectory)
+
+    fig = plt.gcf()
+    fig.set_size_inches(16, 9)
+    fig.savefig(chartDirectory + 'chart.png')
+
+def saveCameraPictures(nodes, imageDirectory):
+
+    if not exists(imageDirectory):
+        mkdir(imageDirectory)
+
+    npics = 0
+
+    for node in nodes:
+        print "Node: ", node
+        if not node.has_key('latestNodeFile') or node['latestNodeFile'] is None or not node['latestNodeFile'].has_key('fileUrl'):
+            continue
+
+        print node['latestNodeFile']['fileUrl']
+        npics = npics + 1
+        picName = 'pic' + str(npics) + '.jpg'
+
+        img_data = requests.get(node['latestNodeFile']['fileUrl']).content
+        with open(imageDirectory + picName, 'wb') as handler:
+            handler.write(img_data)
+
+    print 'npics: ', npics
+
+class ImageButton(ButtonBehavior, Image):
+    pass
+
+class MainScreen(GridLayout):
+
+    def __init__(self, **kwargs):
+
+        super(MainScreen, self).__init__(**kwargs)
+
+        projectId = 1
+        floorId = 2
+        label = 'CrowdNow'
+        maxDataPoints = 10
+
+        chartDirectory = './chart/'
+        imageDirectory = './pictures/'
+        maskedDirectory = './masked/'
+        maskedDirectory = './pictures/'
+
+        floorData = getListByFloorAndLabel(floorId, label, maxDataPoints)
+        drawChart(floorData, chartDirectory)
+
+        print 'length of floorData: ', len(floorData)
+        nodes = getNodeListByFloor(floorId)
+        saveCameraPictures(nodes, imageDirectory)
+        # doMasking(imageDirectory, maskedDirectory)
+
+        with self.canvas.before:
+            Color(1, 1, 1, 1)  # green; colors range from 0-1 instead of 0-255
+            self.rect = Rectangle(size=self.size, pos=self.pos)
+
+        self.bind(size=self._update_rect, pos=self._update_rect)
+
+        _images = [join(imageDirectory, f) for f in listdir(imageDirectory) if isfile(join(imageDirectory, f))]
+        _charts = [join(chartDirectory, f) for f in listdir(chartDirectory) if isfile(join(chartDirectory, f))]
+
+        self.cols = (len(_images) + len(_charts) + 1) / 2
+        print self.cols
+
+        for _image in _images:
+            self.image = ImageButton(title='Cameras',source=_image, on_press=self.showDialog)
+            self.add_widget(self.image)
+
+        if len(_images) == 2:
+            self.add_widget(Widget())
+        for _chart in _charts:
+            self.chart = ImageButton(title='Chart',source=_chart,on_press=self.showDialog)
+            self.add_widget(self.chart)
+        time.sleep(10)
+
+    def _update_rect(self, instance, value):
+        self.rect.pos = instance.pos
+        self.rect.size = instance.size
+
+    def showDialog(self, instance):
+        # print instance.source
+        # dialog = Dialog(instance.source)
+        # dialog.run()
+        popup = Popup(title='bigger image', content=Image(source=instance.source), size_hint=(None, None), size=(1440, 810))
+        popup.open()
+
+class MainDisplay(App):
+
+    def __init__(self):
+        super(MainDisplay, self).__init__()
+
+    def build(self):
+
+        refreshGap = 30
+
+        self.mainScreen = MainScreen()
+        Clock.schedule_interval(self.tmpFunc, refreshGap)
+        # print "did a loop"
+        return self.mainScreen
+
+    def tmpFunc(self, *args):
+        self.mainScreen = MainScreen()
+
+    def closeNow(self):
+        self.get_running_app().stop()
+
+if __name__ == '__main__':
+
+    Config.set('graphics', 'width', '1600')
+    Config.set('graphics', 'height', '900')
+
+    app = MainDisplay()
+    app.run()
+
