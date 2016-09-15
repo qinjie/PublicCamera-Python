@@ -119,7 +119,7 @@ if __name__ == '__main__':
         camera.vflip = False
         camera.hflip = False
         camera.brightness = 50
-        camera.resolution = (640, 480)
+        camera.resolution = (1920, 1080)
         camera.framerate = 24
         # camera.annotate_background = picamera.Color('black')
         camera.annotate_text_size = 12
