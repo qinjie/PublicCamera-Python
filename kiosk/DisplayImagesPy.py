@@ -15,8 +15,11 @@ from scipy.interpolate import spline
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import os
 from os import listdir, mkdir
 from os.path import isfile, join, exists
+
+import time
 
 import requests
 import APIConstant
@@ -26,7 +29,9 @@ import time
 
 
 def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
-    r = requests.get(APIConstant.API_HOST + APIConstant.LIST_BY_FLOOR_AND_LABEL + '/' + str(floorId) + '/' + label);
+    API_URL = APIConstant.API_HOST + APIConstant.LIST_BY_FLOOR_AND_LABEL + '/' + str(floorId) + '/' + label
+    r = requests.get(API_URL);
+    print 'getListByFloorAndLabel URL: ', API_URL
 
     if r.status_code != 200:
         print 'Error, code: ', str(r.status_code)
@@ -47,7 +52,7 @@ def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
 def getNodeListByFloor(floorId):
     API_URL = APIConstant.API_HOST + APIConstant.SEARCH_BY_FLOOR + '?' + 'floorId=' + str(floorId)
     r = requests.get(API_URL)
-
+    print "api url: ", API_URL
     if r.status_code != 200:
         print 'Error, code ', str(r.status_code)
         return None
@@ -62,9 +67,11 @@ def getNodeListByFloor(floorId):
 def drawChart(data, chartDirectory):
 
     size = len(data)
+    if size == 0:
+        print "drawChart: size == 0"
 
     y = [point['value'] for point in data]
-    # print y
+    print 'chart value: ', y
     xtick = [point['marker'] for point in data]
     x = np.array(range(size))
 
@@ -90,15 +97,30 @@ def drawChart(data, chartDirectory):
     if not exists(chartDirectory):
         mkdir(chartDirectory)
 
+    # filelist = [f for f in os.listdir(chartDirectory)]
+    # for f in filelist:
+    #     os.remove(join(chartDirectory, f))
+
+    _chartName = str(int(time.time())) + '.png'
+
     fig = plt.gcf()
     fig.set_size_inches(16, 9)
-    fig.savefig(chartDirectory + 'chart.png')
+    fig.savefig(chartDirectory + _chartName)
+
+    fig.clear()
+    plt.close()
+    return _chartName
 
 def saveCameraPictures(nodes, imageDirectory):
 
     if not exists(imageDirectory):
         mkdir(imageDirectory)
 
+    # filelist = [f for f in os.listdir(imageDirectory)]
+    # for f in filelist:
+    #     os.remove(join(imageDirectory, f))
+
+    _imageList = []
     npics = 0
 
     for node in nodes:
@@ -107,14 +129,17 @@ def saveCameraPictures(nodes, imageDirectory):
             continue
 
         print node['latestNodeFile']['fileUrl']
+        _image = node['latestNodeFile']['fileUrl'][node['latestNodeFile']['fileUrl'].rfind('/') + 1:]
+        _imageList.append(_image)
         npics = npics + 1
-        picName = 'pic' + str(npics) + '.jpg'
 
         img_data = requests.get(node['latestNodeFile']['fileUrl']).content
-        with open(imageDirectory + picName, 'wb') as handler:
+        with open(imageDirectory + _image, 'wb') as handler:
             handler.write(img_data)
 
     print 'npics: ', npics
+    print '_imageList: ', _imageList
+    return _imageList
 
 class ImageButton(ButtonBehavior, Image):
     pass
@@ -125,46 +150,61 @@ class MainScreen(GridLayout):
 
         super(MainScreen, self).__init__(**kwargs)
 
-        projectId = 1
-        floorId = 2
-        label = 'CrowdNow'
-        maxDataPoints = 10
+        self.projectId = 1
+        self.floorId = 11
+        self.label = 'CrowdNow'
+        self.maxDataPoints = 10
 
-        chartDirectory = './chart/'
-        imageDirectory = './pictures/'
-        maskedDirectory = './masked/'
-        maskedDirectory = './pictures/'
+        self.chartDirectory = './chart/'
+        self.imageDirectory = './pictures/'
+        self.maskedDirectory = './masked/'
+        self.maskedDirectory = './pictures/'
 
-        floorData = getListByFloorAndLabel(floorId, label, maxDataPoints)
-        drawChart(floorData, chartDirectory)
-
-        print 'length of floorData: ', len(floorData)
-        nodes = getNodeListByFloor(floorId)
-        saveCameraPictures(nodes, imageDirectory)
-        # doMasking(imageDirectory, maskedDirectory)
-
+        # self.updateScreen()
         with self.canvas.before:
             Color(1, 1, 1, 1)  # green; colors range from 0-1 instead of 0-255
             self.rect = Rectangle(size=self.size, pos=self.pos)
 
         self.bind(size=self._update_rect, pos=self._update_rect)
 
-        _images = [join(imageDirectory, f) for f in listdir(imageDirectory) if isfile(join(imageDirectory, f))]
-        _charts = [join(chartDirectory, f) for f in listdir(chartDirectory) if isfile(join(chartDirectory, f))]
+        self.imageList = []
+        for i in range(4):
+            self.imageList.append(ImageButton(on_press=self.showDialog))
+            self.add_widget(self.imageList[i])
 
-        self.cols = (len(_images) + len(_charts) + 1) / 2
-        print self.cols
+        self.updateScreen()
 
+    def updateScreen(self, *args):
+        floorData = getListByFloorAndLabel(self.floorId, self.label, self.maxDataPoints)
+        _chartName = drawChart(floorData, self.chartDirectory)
+
+        print 'length of floorData: ', len(floorData)
+        nodes = getNodeListByFloor(self.floorId)
+        _imageList = saveCameraPictures(nodes, self.imageDirectory)
+        # doMasking(imageDirectory, maskedDirectory)
+
+        # self.clear_widgets()
+
+        _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
+        _chart = join(self.chartDirectory, _chartName)
+
+        self.rows = 2
+        print self.rows
+
+        self.imageIndex = 0
         for _image in _images:
-            self.image = ImageButton(title='Cameras',source=_image, on_press=self.showDialog)
-            self.add_widget(self.image)
+            print '[DEBUG] source image: ', _image
+            # self.image = ImageButton(title='Cameras',source=_image, on_press=self.showDialog)
+            self.imageList[self.imageIndex].source = _image
+            self.imageIndex = self.imageIndex + 1
+            # self.add_widget(self.image)
 
-        if len(_images) == 2:
-            self.add_widget(Widget())
-        for _chart in _charts:
-            self.chart = ImageButton(title='Chart',source=_chart,on_press=self.showDialog)
-            self.add_widget(self.chart)
-        time.sleep(10)
+        if len(_images) % 2 == 0:
+            self.imageIndex = self.imageIndex + 1
+        self.imageList[self.imageIndex].source = _chart
+        # self.chart = ImageButton(title=_chartName,source=_chart,on_press=self.showDialog)
+        # self.add_widget(self.chart)
+
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
@@ -187,12 +227,13 @@ class MainDisplay(App):
         refreshGap = 30
 
         self.mainScreen = MainScreen()
-        Clock.schedule_interval(self.tmpFunc, refreshGap)
+        # Clock.schedule_interval(mainScreen.updateScreen, refreshGap)
+        Clock.schedule_interval(self.mainScreen.updateScreen, refreshGap)
         # print "did a loop"
         return self.mainScreen
 
-    def tmpFunc(self, *args):
-        self.mainScreen = MainScreen()
+    # def tmpFunc(self, *args):
+    #     self.mainScreen = MainScreen()
 
     def closeNow(self):
         self.get_running_app().stop()

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/DisplayImagesPy.py" line="242" mnemonic="5" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="8da87577-9efd-4a5c-ad04-811e7ab53ec0" name="Default" comment="" />
     <ignored path="kiosk.iws" />
@@ -13,7 +16,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/kiosk$DisplayImagesPy.coverage" NAME="DisplayImagesPy Coverage Results" MODIFIED="1473140890021" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/kiosk$DisplayImagesPy.coverage" NAME="DisplayImagesPy Coverage Results" MODIFIED="1473920803657" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
@@ -23,36 +26,21 @@
     <favorites_list name="kiosk" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+    <leaf>
       <file leaf-file-name="DisplayImagesPy.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DisplayImagesPy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="376">
-              <caret line="201" column="43" selection-start-line="201" selection-start-column="43" selection-end-line="201" selection-end-column="43" />
+            <state relative-caret-position="1470">
+              <caret line="203" column="22" selection-start-line="203" selection-start-column="13" selection-end-line="203" selection-end-column="22" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
-                <element signature="e#688#1148#0" expanded="false" />
-                <element signature="e#1187#1510#0" expanded="false" />
-                <element signature="e#1554#2257#0" expanded="false" />
-                <element signature="e#2311#2913#0" expanded="false" />
-                <element signature="e#3041#4627#0" expanded="false" />
-                <element signature="e#4682#4749#0" expanded="false" />
-                <element signature="e#4795#5030#0" expanded="false" />
-                <element signature="e#5089#5124#0" expanded="false" />
-                <element signature="e#5156#5329#0" expanded="false" />
-                <element signature="e#5369#5399#0" expanded="false" />
-                <element signature="e#5433#5462#0" expanded="false" />
+                <element signature="e#711#1243#0" expanded="false" />
+                <element signature="e#1282#1635#0" expanded="false" />
+                <element signature="e#1679#2683#0" expanded="false" />
+                <element signature="e#2737#3635#0" expanded="false" />
+                <element signature="e#5918#5985#0" expanded="false" />
+                <element signature="e#6760#6789#0" expanded="false" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="APIConstant.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/APIConstant.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="19" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="35" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -82,9 +70,9 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="26" />
-    <option name="y" value="25" />
-    <option name="width" value="1868" />
+    <option name="x" value="389" />
+    <option name="y" value="27" />
+    <option name="width" value="1390" />
     <option name="height" value="973" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
@@ -112,8 +100,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -134,6 +120,8 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -386,6 +374,14 @@
   <component name="ShelveChangesManager" show_recycled="false">
     <option name="remove_strategy" value="false" />
   </component>
+  <component name="SshConsoleOptionsProvider">
+    <option name="myEncoding" value="UTF-8" />
+    <option name="myConnectionType" value="DEFAULT_SDK" />
+    <option name="myConnectionId" value="" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration>$USER_HOME$/.subversion</configuration>
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="8da87577-9efd-4a5c-ad04-811e7ab53ec0" name="Default" comment="" />
@@ -397,16 +393,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="26" y="25" width="1868" height="973" extended-state="0" />
-    <editor active="true" />
+    <frame x="389" y="27" width="1390" height="973" extended-state="0" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1352518" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32964602" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38384956" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -415,6 +411,7 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="File Transfer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32964602" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -444,17 +441,42 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
-            <element signature="e#688#1148#0" expanded="false" />
-            <element signature="e#1187#1510#0" expanded="false" />
-            <element signature="e#1554#2257#0" expanded="false" />
-            <element signature="e#2311#2913#0" expanded="false" />
-            <element signature="e#3041#4627#0" expanded="false" />
-            <element signature="e#4682#4749#0" expanded="false" />
-            <element signature="e#4795#5030#0" expanded="false" />
-            <element signature="e#5089#5124#0" expanded="false" />
-            <element signature="e#5156#5329#0" expanded="false" />
-            <element signature="e#5369#5399#0" expanded="false" />
-            <element signature="e#5433#5462#0" expanded="false" />
+            <element signature="e#711#1243#0" expanded="false" />
+            <element signature="e#1282#1635#0" expanded="false" />
+            <element signature="e#1679#2683#0" expanded="false" />
+            <element signature="e#2737#3635#0" expanded="false" />
+            <element signature="e#5918#5985#0" expanded="false" />
+            <element signature="e#6760#6789#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python2.7/site-packages/kivy/clock.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8655">
+          <caret line="584" column="65" selection-start-line="584" selection-start-column="58" selection-end-line="584" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/APIConstant.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DisplayImagesPy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#24#0" expanded="true" />
+            <element signature="e#711#1243#0" expanded="false" />
+            <element signature="e#1282#1635#0" expanded="false" />
+            <element signature="e#1679#2683#0" expanded="false" />
+            <element signature="e#2737#3635#0" expanded="false" />
+            <element signature="e#5918#5985#0" expanded="false" />
+            <element signature="e#6760#6789#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -474,42 +496,45 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/note.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file:///usr/local/lib/python2.7/site-packages/kivy/clock.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="473">
-          <caret line="708" column="6" selection-start-line="708" selection-start-column="6" selection-end-line="708" selection-end-column="6" />
-          <folding />
+        <state relative-caret-position="187">
+          <caret line="593" column="0" selection-start-line="593" selection-start-column="0" selection-end-line="593" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/APIConstant.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="19" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="35" />
-          <folding />
+        <state relative-caret-position="105">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/DisplayImagesPy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
-          <caret line="201" column="43" selection-start-line="201" selection-start-column="43" selection-end-line="201" selection-end-column="43" />
+        <state relative-caret-position="1470">
+          <caret line="203" column="22" selection-start-line="203" selection-start-column="13" selection-end-line="203" selection-end-column="22" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
-            <element signature="e#688#1148#0" expanded="false" />
-            <element signature="e#1187#1510#0" expanded="false" />
-            <element signature="e#1554#2257#0" expanded="false" />
-            <element signature="e#2311#2913#0" expanded="false" />
-            <element signature="e#3041#4627#0" expanded="false" />
-            <element signature="e#4682#4749#0" expanded="false" />
-            <element signature="e#4795#5030#0" expanded="false" />
-            <element signature="e#5089#5124#0" expanded="false" />
-            <element signature="e#5156#5329#0" expanded="false" />
-            <element signature="e#5369#5399#0" expanded="false" />
-            <element signature="e#5433#5462#0" expanded="false" />
+            <element signature="e#711#1243#0" expanded="false" />
+            <element signature="e#1282#1635#0" expanded="false" />
+            <element signature="e#1679#2683#0" expanded="false" />
+            <element signature="e#2737#3635#0" expanded="false" />
+            <element signature="e#5918#5985#0" expanded="false" />
+            <element signature="e#6760#6789#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
+  </component>
+  <component name="webServersAuthStorage">
+    <data>AAAAcHZe4yFxjV7foghEBiAib0xgVs6B53E+dZtH/8rTqfjDXH6DP4c/BNX0kWheSSak9Pjnfm6pQn3SOJqnGbkDiM1cOHNzCOa1RMyR//TMOTRbxsMYEasysG00YaW8xJHWTiMiBt39u2molUyLeaz1lvPe03DVqG8kbNgwFQMOTKXj</data>
   </component>
 </project>

@@ -1,5 +1,5 @@
 # API_HOST = 'http://188.166.183.205/publiccamera/api/index.php/v1'
-API_HOST = 'http://eceiot.np.edu.sg/publiccamera/api/index.php/v1'
+API_HOST = 'http://188.166.183.205/publiccamera/api/index.php/v1'
 PROJECTS = '/projects'
 SEARCH_BY_PROJECT = '/floors/search'
 SEARCH_BY_FLOOR = '/nodes/search'
