@@ -1,3 +1,4 @@
+
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.layout import Layout
@@ -34,6 +35,7 @@ def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
     print 'getListByFloorAndLabel URL: ', API_URL
 
     if r.status_code != 200:
+        print 'request: ', API_URL
         print 'Error, code: ', str(r.status_code)
         return None
 
@@ -97,14 +99,14 @@ def drawChart(data, chartDirectory):
     if not exists(chartDirectory):
         mkdir(chartDirectory)
 
-    # filelist = [f for f in os.listdir(chartDirectory)]
-    # for f in filelist:
-    #     os.remove(join(chartDirectory, f))
+    filelist = [f for f in os.listdir(chartDirectory)]
+    for f in filelist:
+        os.remove(join(chartDirectory, f))
 
     _chartName = str(int(time.time())) + '.png'
 
     fig = plt.gcf()
-    fig.set_size_inches(16, 9)
+    fig.set_size_inches(24, 13.5)
     fig.savefig(chartDirectory + _chartName)
 
     fig.clear()
@@ -160,6 +162,9 @@ class MainScreen(GridLayout):
         self.maskedDirectory = './masked/'
         self.maskedDirectory = './pictures/'
 
+        self.padding = 0
+        self.spacing = [10, 0]
+
         # self.updateScreen()
         with self.canvas.before:
             Color(1, 1, 1, 1)  # green; colors range from 0-1 instead of 0-255
@@ -169,7 +174,9 @@ class MainScreen(GridLayout):
 
         self.imageList = []
         for i in range(4):
-            self.imageList.append(ImageButton(on_press=self.showDialog))
+            self.imageList.append(ImageButton(on_press=self.showDialog, size=[123,321]))
+            print 'abc:', self.imageList[i].size
+            # self.imageList[i].padding = i * 100
             self.add_widget(self.imageList[i])
 
         self.updateScreen()
@@ -185,7 +192,9 @@ class MainScreen(GridLayout):
 
         # self.clear_widgets()
 
-        _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
+        # _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
+        _images = ['./tmp_pics/1.jpg', \
+                   './tmp_pics/2.jpg']
         _chart = join(self.chartDirectory, _chartName)
 
         self.rows = 2
@@ -196,6 +205,7 @@ class MainScreen(GridLayout):
             print '[DEBUG] source image: ', _image
             # self.image = ImageButton(title='Cameras',source=_image, on_press=self.showDialog)
             self.imageList[self.imageIndex].source = _image
+            # print 'size after modified: ', self.imageList[self.imageIndex].size
             self.imageIndex = self.imageIndex + 1
             # self.add_widget(self.image)
 
@@ -245,4 +255,5 @@ if __name__ == '__main__':
 
     app = MainDisplay()
     app.run()
+
 
