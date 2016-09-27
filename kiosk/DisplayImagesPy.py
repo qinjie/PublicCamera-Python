@@ -2,11 +2,17 @@ from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.stacklayout import StackLayout
 from kivy.uix.image import Image
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.config import Config
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
+from kivy.uix.label import Label
+from PIL import Image as PilImage
+
+import matplotlib
+matplotlib.use('Agg')
 
 import numpy as np
 from scipy.interpolate import spline
@@ -27,7 +33,7 @@ import time
 def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
     API_URL = APIConstant.API_HOST + APIConstant.LIST_BY_FLOOR_AND_LABEL + '/' + str(floorId) + '/' + label
     r = requests.get(API_URL);
-    print 'getListByFloorAndLabel URL: ', API_URL
+    # print 'getListByFloorAndLabel URL: ', API_URL
 
     if r.status_code != 200:
         print 'request: ', API_URL
@@ -49,7 +55,7 @@ def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
 def getNodeListByFloor(floorId):
     API_URL = APIConstant.API_HOST + APIConstant.SEARCH_BY_FLOOR + '?' + 'floorId=' + str(floorId)
     r = requests.get(API_URL)
-    print "api url: ", API_URL
+    # print "api url: ", API_URL
     if r.status_code != 200:
         print 'Error, code ', str(r.status_code)
         return None
@@ -68,7 +74,7 @@ def drawChart(data, chartDirectory):
         print "drawChart: size == 0"
 
     y = [point['value'] for point in data]
-    print 'chart value: ', y
+    # print 'chart value: ', y
     xtick = [point['marker'] for point in data]
     x = np.array(range(size))
 
@@ -94,9 +100,9 @@ def drawChart(data, chartDirectory):
     if not exists(chartDirectory):
         mkdir(chartDirectory)
 
-    filelist = [f for f in os.listdir(chartDirectory)]
-    for f in filelist:
-        os.remove(join(chartDirectory, f))
+    # filelist = [f for f in os.listdir(chartDirectory)]
+    # for f in filelist:
+    #     os.remove(join(chartDirectory, f))
 
     _chartName = str(int(time.time())) + '.png'
 
@@ -113,19 +119,19 @@ def saveCameraPictures(nodes, imageDirectory):
     if not exists(imageDirectory):
         mkdir(imageDirectory)
 
-    filelist = [f for f in os.listdir(imageDirectory)]
-    for f in filelist:
-        os.remove(join(imageDirectory, f))
+    # filelist = [f for f in os.listdir(imageDirectory)]
+    # for f in filelist:
+    #     os.remove(join(imageDirectory, f))
 
     _imageList = []
     npics = 0
 
     for node in nodes:
-        print "Node: ", node
+        # print "Node: ", node
         if not node.has_key('latestNodeFile') or node['latestNodeFile'] is None or not node['latestNodeFile'].has_key('fileUrl'):
             continue
 
-        print node['latestNodeFile']['fileUrl']
+        # print node['latestNodeFile']['fileUrl']
         _image = node['latestNodeFile']['fileUrl'][node['latestNodeFile']['fileUrl'].rfind('/') + 1:]
         _imageList.append(_image)
         npics = npics + 1
@@ -134,14 +140,18 @@ def saveCameraPictures(nodes, imageDirectory):
         with open(imageDirectory + _image, 'wb') as handler:
             handler.write(img_data)
 
-    print 'npics: ', npics
-    print '_imageList: ', _imageList
+        basewidth = 960
+        img = PilImage.open(imageDirectory + _image)
+        wpercent = (basewidth / float(img.size[0]))
+        hsize = int((float(img.size[1]) * float(wpercent)))
+        img = img.resize((basewidth, hsize), PilImage.ANTIALIAS)
+        img.save(imageDirectory + _image)
+
+    # print 'npics: ', npics
+    # print '_imageList: ', _imageList
     return _imageList
 
-class ImageButton(ButtonBehavior, Image):
-    pass
-
-class MainScreen(GridLayout):
+class MainScreen(StackLayout):
 
     def __init__(self, **kwargs):
 
@@ -157,34 +167,40 @@ class MainScreen(GridLayout):
         self.maskedDirectory = './masked/'
         self.maskedDirectory = './pictures/'
 
-        self.padding = 0
-        self.spacing = [5, 10]
-        self.rows = 2
-
         with self.canvas.before:
-            Color(1, 1, 1, 1)  # green; colors range from 0-1 instead of 0-255
+            Color(1, 1, 1, 1)  # colors range from 0-1 instead of 0-255
             self.rect = Rectangle(size=self.size, pos=self.pos)
         self.bind(size=self._update_rect, pos=self._update_rect)
 
-
         self.initScreen()
 
-    def initScreen(self, img_size = None):
+    def initScreen(self, img_size=None):
 
         print 'init screen'
+
+        self.clear_widgets()
+        self.titleLabel = Label(text='[color=654321][size=30]Lab room[/size][/color]', markup=True, size=[self.size[0], int(self.size[1] * 0.1)], size_hint=(None, None))
+        self.titleLayout = GridLayout(rows=1, size=self.titleLabel.size, size_hint=(None, None))
+        self.titleLayout.add_widget(self.titleLabel)
+        self.add_widget(self.titleLayout)
+
+        self.gridLayout = GridLayout(rows=2, spacing=[5, 10], size=[self.size[0], int(self.size[1] * 0.9)], size_hint=(None, None))
+        self.add_widget(self.gridLayout)
+
+        self.gridSize = self.gridLayout.size
+        print 'window size, grid size, label size:', self.size, self.gridSize, self.titleLabel.size
 
         self.imageList = []
         self.anchorList = []
         self.relativeList = []
-        self.clear_widgets()
         self.last_size = np.copy(self.size)
 
-        img_row = self.size[1] / self.rows
+        img_row = int(self.gridSize[1] / self.gridLayout.rows)
         if img_size is None:
-            img_col = self.size[0] * img_row / self.size[1]
+            img_col = int(self.gridSize[0] * img_row / self.gridSize[1])
         else:
             img_col = int(1. * img_row * img_size[0] / img_size[1])
-        print 'img size:', img_row, img_col
+        # print 'img size:', img_row, img_col
 
         for i in range(4):
             if i % 2 == 0:
@@ -192,7 +208,7 @@ class MainScreen(GridLayout):
             else:
                 self.anchorList.append(AnchorLayout(anchor_x='left'))
 
-            self.imageList.append(ImageButton(size=(img_col, img_row), size_hint=(None, None)))
+            self.imageList.append(Image(size=(img_col, img_row), size_hint=(None, None)))
 
             self.anchorList[i].add_widget(self.imageList[i])
 
@@ -200,7 +216,7 @@ class MainScreen(GridLayout):
 
             self.relativeList[i].add_widget(self.anchorList[i])
 
-            self.add_widget(self.relativeList[i])
+            self.gridLayout.add_widget(self.relativeList[i])
 
         self.updateScreen()
 
@@ -208,42 +224,37 @@ class MainScreen(GridLayout):
         floorData = getListByFloorAndLabel(self.floorId, self.label, self.maxDataPoints)
         _chartName = drawChart(floorData, self.chartDirectory)
 
-        print 'length of floorData: ', len(floorData)
+        # print 'length of floorData: ', len(floorData)
 
         nodes = getNodeListByFloor(self.floorId)
 
-        print 'nodes:', nodes
+        # print 'nodes:', nodes
 
         _imageList = saveCameraPictures(nodes, self.imageDirectory)
 
-        print '_imageList:', _imageList
+        # print '_imageList:', _imageList
 
         _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
+        # _images = ['../../../../images2/P_20160909_091520.jpg', '../../../../images2/P_20160909_091523.jpg']
 
         _chart = join(self.chartDirectory, _chartName)
 
-
-
         self.imageIndex = 0
         for _image in _images:
-            print '[DEBUG] source image: ', _image
-            # self.image = ImageButton(title='Cameras',source=_image, on_press=self.showDialog)
+            # print '[DEBUG] source image: ', _image
             self.imageList[self.imageIndex].source = _image
-            # print 'size after modified: ', self.imageList[self.imageIndex].size
             self.imageIndex = self.imageIndex + 1
-            # self.add_widget(self.image)
 
         if len(_images) % 2 == 0:
             self.imageIndex = self.imageIndex + 1
         self.imageList[self.imageIndex].source = _chart
-        # self.chart = ImageButton(title=_chartName,source=_chart,on_press=self.showDialog)
-        # self.add_widget(self.chart)
 
         print 'size and last_size', self.size, self.last_size
         if not np.array_equal(self.size, self.last_size):
+            print 'window size changed'
             image = Image(source=_images[0])
-            print 'zzzz', image.texture.size
             self.initScreen(image.texture.size)
+
 
     def _update_rect(self, instance, value):
         self.rect.pos = instance.pos
@@ -256,7 +267,7 @@ class MainDisplay(App):
 
     def build(self):
 
-        refreshGap = 20
+        refreshGap = 60
 
         self.mainScreen = MainScreen()
         Clock.schedule_interval(self.mainScreen.updateScreen, refreshGap)
@@ -267,9 +278,9 @@ if __name__ == '__main__':
 
     Config.set('graphics', 'width', '1600')
     Config.set('graphics', 'height', '900')
+
     sns.set(font_scale=3)
 
     app = MainDisplay()
     app.run()
-
 
