@@ -11,6 +11,7 @@ from kivy.clock import Clock
 from kivy.uix.label import Label
 from PIL import Image as PilImage
 
+
 import matplotlib
 matplotlib.use('Agg')
 
@@ -25,6 +26,7 @@ from os import listdir, mkdir
 from os.path import isfile, join, exists
 
 import requests
+from requests.exceptions import ConnectionError
 import APIConstant
 
 import time
@@ -100,9 +102,9 @@ def drawChart(data, chartDirectory):
     if not exists(chartDirectory):
         mkdir(chartDirectory)
 
-    # filelist = [f for f in os.listdir(chartDirectory)]
-    # for f in filelist:
-    #     os.remove(join(chartDirectory, f))
+    filelist = [f for f in os.listdir(chartDirectory)]
+    for f in filelist:
+        os.remove(join(chartDirectory, f))
 
     _chartName = str(int(time.time())) + '.png'
 
@@ -221,23 +223,23 @@ class MainScreen(StackLayout):
         self.updateScreen()
 
     def updateScreen(self, *args):
-        floorData = getListByFloorAndLabel(self.floorId, self.label, self.maxDataPoints)
-        _chartName = drawChart(floorData, self.chartDirectory)
 
-        # print 'length of floorData: ', len(floorData)
+        try:
+            floorData = getListByFloorAndLabel(self.floorId, self.label, self.maxDataPoints)
 
-        nodes = getNodeListByFloor(self.floorId)
+            _chartName = drawChart(floorData, self.chartDirectory)
 
-        # print 'nodes:', nodes
+            nodes = getNodeListByFloor(self.floorId)
 
-        _imageList = saveCameraPictures(nodes, self.imageDirectory)
+            _imageList = saveCameraPictures(nodes, self.imageDirectory)
 
-        # print '_imageList:', _imageList
+            _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
+            # _images = ['../../../../images2/P_20160909_091520.jpg', '../../../../images2/P_20160909_091523.jpg']
 
-        _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
-        # _images = ['../../../../images2/P_20160909_091520.jpg', '../../../../images2/P_20160909_091523.jpg']
-
-        _chart = join(self.chartDirectory, _chartName)
+            _chart = join(self.chartDirectory, _chartName)
+        except ConnectionError:
+            print 'just got ConnectionError'
+            return
 
         self.imageIndex = 0
         for _image in _images:
@@ -249,9 +251,9 @@ class MainScreen(StackLayout):
             self.imageIndex = self.imageIndex + 1
         self.imageList[self.imageIndex].source = _chart
 
-        print 'size and last_size', self.size, self.last_size
+        # print 'size and last_size', self.size, self.last_size
         if not np.array_equal(self.size, self.last_size):
-            print 'window size changed'
+            # print 'window size changed'
             image = Image(source=_images[0])
             self.initScreen(image.texture.size)
 
@@ -267,7 +269,7 @@ class MainDisplay(App):
 
     def build(self):
 
-        refreshGap = 60
+        refreshGap = 30
 
         self.mainScreen = MainScreen()
         Clock.schedule_interval(self.mainScreen.updateScreen, refreshGap)
@@ -283,4 +285,3 @@ if __name__ == '__main__':
 
     app = MainDisplay()
     app.run()
-
