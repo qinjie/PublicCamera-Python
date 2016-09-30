@@ -1,10 +1,11 @@
 import numpy as np
-import statistics
+import datetime
 from os.path import join, isfile
 from os import listdir
 from PIL import Image
 from scipy.stats import mode as scimode
 
+'''This function takes 9s for 23 images with size 960x540'''
 def getInterpolatedBackground(PILImages):
 
     colorImages = []
@@ -24,18 +25,18 @@ def getInterpolatedBackground(PILImages):
 
     rows, cols = grayImages[0].shape
 
-    background = np.zeros((rows, cols, 3), dtype='uint8')
+    for i in range(len(colorImages)):
+        colorImages[i] = np.reshape(colorImages[i], (1, colorImages[i].shape[0] * colorImages[i].shape[1], 3))[0]
+        grayImages[i] = np.reshape(grayImages[i], (1, grayImages[i].shape[0] * grayImages[i].shape[1]))[0]
 
-    for i in range(rows):
-        for j in range(cols):
-            intensities = [grayImages[k][i, j] for k in range(0, len(grayImages))]
-            mode = scimode(intensities)[0][0]
-            idx = intensities.index(mode)
-
-            background[i, j, :] = colorImages[idx][i, j, :]
+    zipped = zip(grayImages)
+    zipped2 = zip(*grayImages)
+    modes = scimode((zipped))[0][0][0]
+    indexes = [zipped2[i].index(modes[i]) for i in range(rows * cols)]
+    background = [colorImages[indexes[i]][i] for i in range(rows * cols)]
+    background = np.reshape(background, (rows, cols, 3))
 
     return background
-
 
 if __name__ == '__main__':
     _path = './pictures/'
@@ -50,6 +51,8 @@ if __name__ == '__main__':
         except Exception:
             pass
 
+    begin_time = datetime.datetime.now()
     back = getInterpolatedBackground(images)
+    print 'processing time:', datetime.datetime.now() - begin_time
     back = Image.fromarray(back)
     back.show()
