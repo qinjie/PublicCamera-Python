@@ -1,10 +1,14 @@
+'''
+The title is hard-coded here
+The panorama is taken from server
+Chart is drawed from data taken from server
+'''
+
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.widget import Widget
 from kivy.uix.stacklayout import StackLayout
 from kivy.uix.image import Image
-from kivy.uix.behaviors import ButtonBehavior
 from kivy.config import Config
 from kivy.graphics import Color, Rectangle
 from kivy.clock import Clock
@@ -31,10 +35,11 @@ import APIConstant
 
 import time
 
-''''''
+
 def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
     API_URL = APIConstant.API_HOST + APIConstant.LIST_BY_FLOOR_AND_LABEL + '/' + str(floorId) + '/' + label
     r = requests.get(API_URL);
+    # print 'getListByFloorAndLabel URL: ', API_URL
 
     if r.status_code != 200:
         print 'request: ', API_URL
@@ -45,10 +50,13 @@ def getListByFloorAndLabel(floorId, label, maxDataPoints = -1):
 
     data = sorted(data, key=lambda x:x['created'])
 
+    # for record in data:
+    #     print record
+
     if maxDataPoints == -1 or maxDataPoints >= len(data):
         return data
 
-    return data[len(data) - maxDataPoints:]
+    return data[len(data) - maxDataPoints :]
 
 def getNodeListByFloor(floorId):
     API_URL = APIConstant.API_HOST + APIConstant.SEARCH_BY_FLOOR + '?' + 'floorId=' + str(floorId)
@@ -105,7 +113,7 @@ def drawChart(data, chartDirectory):
     _chartName = str(int(time.time())) + '.png'
 
     fig = plt.gcf()
-    fig.set_size_inches(8.8, 4.95)
+    fig.set_size_inches(24, 13.5)
     fig.savefig(chartDirectory + _chartName, bbox_inches='tight')
 
     fig.clear()
@@ -117,9 +125,9 @@ def saveCameraPictures(nodes, imageDirectory):
     if not exists(imageDirectory):
         mkdir(imageDirectory)
 
-    filelist = [f for f in os.listdir(imageDirectory)]
-    for f in filelist:
-        os.remove(join(imageDirectory, f))
+    # filelist = [f for f in os.listdir(imageDirectory)]
+    # for f in filelist:
+    #     os.remove(join(imageDirectory, f))
 
     _imageList = []
     npics = 0
@@ -156,7 +164,7 @@ class MainScreen(StackLayout):
         super(MainScreen, self).__init__(**kwargs)
 
         self.projectId = 1
-        self.floorId = 2
+        self.floorId = 11
         self.label = 'CrowdNow'
         self.maxDataPoints = 10
 
@@ -164,6 +172,13 @@ class MainScreen(StackLayout):
         self.imageDirectory = './pictures/'
         self.maskedDirectory = './masked/'
         self.maskedDirectory = './pictures/'
+
+        '''The below values must be summed up to 1'''
+        self.title_height_p = 0.1
+        self.pano_height_p = 0.45
+        self.chart_height_p = 0.45
+
+        self.pano = None
 
         with self.canvas.before:
             Color(1, 1, 1, 1)  # colors range from 0-1 instead of 0-255
@@ -177,44 +192,33 @@ class MainScreen(StackLayout):
         print 'init screen'
 
         self.clear_widgets()
-        self.titleLabel = Label(text='[color=654321][size=30]Orchard Road[/size][/color]', markup=True, size=[self.size[0], int(self.size[1] * 0.1)], size_hint=(None, None))
+        self.titleLabel = Label(text='[color=654321][size=30]Lab room[/size][/color]',
+                                markup=True, size=[self.size[0], int(self.size[1] * self.title_height_p)],
+                                size_hint=(None, None))
         self.titleLayout = GridLayout(rows=1, size=self.titleLabel.size, size_hint=(None, None))
         self.titleLayout.add_widget(self.titleLabel)
         self.add_widget(self.titleLayout)
 
-        self.gridLayout = GridLayout(rows=2, spacing=[5, 10], size=[self.size[0], int(self.size[1] * 0.9)], size_hint=(None, None))
-        self.add_widget(self.gridLayout)
-
-        self.gridSize = self.gridLayout.size
-        print 'window size, grid size, label size:', self.size, self.gridSize, self.titleLabel.size
-
-        self.imageList = []
-        self.anchorList = []
-        self.relativeList = []
         self.last_size = np.copy(self.size)
 
-        img_row = int(self.gridSize[1] / self.gridLayout.rows)
-        if img_size is None:
-            img_col = int(self.gridSize[0] * img_row / self.gridSize[1])
-        else:
-            img_col = int(1. * img_row * img_size[0] / img_size[1])
-        # print 'img size:', img_row, img_col
+        img_row = int(self.size[1] * self.pano_height_p)
+        img_col = self.size[0]
 
-        for i in range(4):
-            if i % 2 == 0:
-                self.anchorList.append(AnchorLayout(anchor_x='right'))
-            else:
-                self.anchorList.append(AnchorLayout(anchor_x='left'))
+        '''Setup the pano layout'''
+        self.pano = Image(size=(img_col, img_row), size_hint=(None, None))
+        self.panoLayout = GridLayout(rows=1, size=self.pano.size, size_hint=(None, None))
+        self.panoLayout.add_widget(self.pano)
+        self.add_widget(self.panoLayout)
 
-            self.imageList.append(Image(size=(img_col, img_row), size_hint=(None, None)))
+        chart_row = int(self.size[1] * self.chart_height_p)
+        chart_col = int(self.size[0] / 2)
 
-            self.anchorList[i].add_widget(self.imageList[i])
-
-            self.relativeList.append(RelativeLayout())
-
-            self.relativeList[i].add_widget(self.anchorList[i])
-
-            self.gridLayout.add_widget(self.relativeList[i])
+        self.chart = Image(size=(chart_col, chart_row), size_hint=(None, None))
+        self.chartLayout = GridLayout(rows=1, size=(self.size[0],int(self.size[1] * self.chart_height_p)),
+                                      size_hint=(None, None))
+        self.chartLayout.add_widget(Widget()) # add a blank widget
+        self.chartLayout.add_widget(self.chart)
+        self.add_widget(self.chartLayout)
 
         self.updateScreen()
 
@@ -227,30 +231,21 @@ class MainScreen(StackLayout):
 
             nodes = getNodeListByFloor(self.floorId)
 
-            _imageList = saveCameraPictures(nodes, self.imageDirectory)
-
-            _images = [join(self.imageDirectory, f) for f in _imageList if isfile(join(self.imageDirectory, f))]
-            # _images = ['../../../../images2/P_20160909_091520.jpg', '../../../../images2/P_20160909_091523.jpg']
+            #TODO: the _pano must be changed to the link to the panorama taken from server
+            _pano = './panoAB.jpg'
 
             _chart = join(self.chartDirectory, _chartName)
         except ConnectionError:
             print 'just got ConnectionError'
             return
 
-        self.imageIndex = 0
-        for _image in _images:
-            # print '[DEBUG] source image: ', _image
-            self.imageList[self.imageIndex].source = _image
-            self.imageIndex = self.imageIndex + 1
-
-        if len(_images) % 2 == 0:
-            self.imageIndex = self.imageIndex + 1
-        self.imageList[self.imageIndex].source = _chart
+        self.pano.source = _pano
+        self.chart.source = _chart
 
         # print 'size and last_size', self.size, self.last_size
         if not np.array_equal(self.size, self.last_size):
             # print 'window size changed'
-            image = Image(source=_images[0])
+            image = Image(source=_pano)
             self.initScreen(image.texture.size)
 
 
@@ -265,7 +260,7 @@ class MainDisplay(App):
 
     def build(self):
 
-        refreshGap = 60
+        refreshGap = 20
 
         self.mainScreen = MainScreen()
         Clock.schedule_interval(self.mainScreen.updateScreen, refreshGap)
@@ -277,7 +272,7 @@ if __name__ == '__main__':
     Config.set('graphics', 'width', '1600')
     Config.set('graphics', 'height', '900')
 
-    sns.set(font_scale=1.5)
+    sns.set(font_scale=3)
 
     app = MainDisplay()
     app.run()

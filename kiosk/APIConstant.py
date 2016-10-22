@@ -1,4 +1,3 @@
-# API_HOST = 'http://188.166.183.205/publiccamera/api/index.php/v1'
 API_HOST = 'http://188.166.183.205/publiccamera/api/index.php/v1'
 PROJECTS = '/projects'
 SEARCH_BY_PROJECT = '/floors/search'
