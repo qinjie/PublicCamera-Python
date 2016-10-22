@@ -39,7 +39,7 @@
       <file leaf-file-name="DisplayImagesPy.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/DisplayImagesPy.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
+            <state relative-caret-position="285">
               <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
               <folding>
                 <element signature="e#0#24#0" expanded="true" />
@@ -58,8 +58,8 @@
       <file leaf-file-name="DisplayWithPanorama.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/DisplayWithPanorama.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="122" column="46" selection-start-line="122" selection-start-column="46" selection-end-line="122" selection-end-column="46" />
+            <state relative-caret-position="90">
+              <caret line="131" column="19" selection-start-line="131" selection-start-column="19" selection-end-line="131" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -99,7 +99,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="35" />
+    <option name="x" value="102" />
     <option name="y" value="23" />
     <option name="width" value="1298" />
     <option name="height" value="977" />
@@ -524,7 +524,7 @@
     </history-entry>
   </component>
   <component name="ToolWindowManager">
-    <frame x="35" y="23" width="1298" height="977" extended-state="0" />
+    <frame x="102" y="23" width="1298" height="977" extended-state="0" />
     <editor active="false" />
     <layout>
       <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32588598" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -940,7 +940,7 @@
     <entry file="file://$PROJECT_DIR$/pictures/0014_20161011_140735_94059800.jpg" />
     <entry file="file://$PROJECT_DIR$/DisplayImagesPy.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
+        <state relative-caret-position="285">
           <caret line="33" column="6" selection-start-line="33" selection-start-column="6" selection-end-line="33" selection-end-column="6" />
           <folding>
             <element signature="e#0#24#0" expanded="true" />
@@ -959,7 +959,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="36" selection-start-line="2" selection-start-column="36" selection-end-line="2" selection-end-column="36" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -967,20 +966,19 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
           <caret line="4" column="32" selection-start-line="4" selection-start-column="32" selection-end-line="4" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/DisplayWithPanorama.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="122" column="46" selection-start-line="122" selection-start-column="46" selection-end-line="122" selection-end-column="46" />
+        <state relative-caret-position="90">
+          <caret line="131" column="19" selection-start-line="131" selection-start-column="19" selection-end-line="131" selection-end-column="19" />
           <folding />
         </state>
       </provider>
     </entry>
   </component>
   <component name="webServersAuthStorage">
-    <data>AAAAoD+DdZHup2Xwbtg3myADvUbZ2iCUwQ6koQHBIa0a7atNJd49kLDZGNx9eZaQQTzddvT3pCOVQaGmDS64AX0v9K0lwvx67xJSDt3IU6L7IrQpodE8kIl91q6N+DIF8MNuPVEiz0//M+d8qvG9am2Re47cFU6xYxRNOylX7+7P4Pzxd/sAsrCVW/vqknG8kRUN4ESK0+rbL8p1Drz9RXtKCB1BCDOpEU5SJSjHWmtFzASL</data>
+    <data>AAAAoCbKF/XNhLV5dT4FdLg8E4hJ48U/3aVhH+C/93/nZTqaMRBTRCwNwwErc/7O7C6jHcQWV8Qc6UoI/FWsXeFk6vqsC0xyUmeD0dYpIdqfymwQ3J0p09CJpEpJHKW9gzVRnMpoT3kJUQvJJnXiMDH6nEMt1CRymrg8Yyeaws4PvMKNXRoJIoydDGVQJ1nYzXgaeM3pWRm5bF4JlATog8bnVRTHY0qTTU6cC9emaRR3+NhF</data>
   </component>
 </project>
