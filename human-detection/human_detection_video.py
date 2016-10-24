@@ -2,33 +2,63 @@ import cv2
 import numpy as np
 import datetime
 
+'''We use OOP approach - create a class'''
 class Detector():
 
     def __init__(self):
+        '''can use a video file or use the webcam'''
         self.camera = cv2.VideoCapture('./samples/768x576.mp4')
         # self.camera = cv2.VideoCapture(0)
 
+        '''pre-define for future use'''
         self.frame_shape = None
 
+        '''
+        this variable define the number and the size\
+        of sliding windows for face detection
+        '''
         self.f_frags = np.array([3, 5])
         self.total_f_cells = self.f_frags[0] * self.f_frags[1]
 
+        '''
+        this variable define the number and the size\
+        of sliding windows for pedestrian detection
+        '''
         self.p_frags = np.array([2, 7])
         self.total_p_cells = self.p_frags[0] * self.p_frags[1]
 
+        '''use HOG pedestrian detector'''
         self.hog = cv2.HOGDescriptor()
         self.hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 
+        '''use Haar Cascades for face detection'''
+        self.face_cascade = cv2.CascadeClassifier('./haarcascades/haarcascade_frontalface_alt2.xml')
+
+        '''
+        these variables define the % of intersection to be discarded
+        2 faces with 30% intersection, 1 will be discarded
+        2 pedestrians with 80% intersection, 1 will be discarded
+        1 face and 1 pedestrian with 100% intersection, the face be discarded
+        '''
         self.o_f_deg = 0.3
         self.o_p_deg = 0.8
         self.o_fp_deg = 1.
 
+        '''
+        these variables are for memory
+        mem_size is the maximum number of previous frames that\
+        we still remember
+        '''
         self.memory_p = []
         self.memory_f = []
         self.mem_size = 5
 
-        self.face_cascade = cv2.CascadeClassifier('./haarcascades/haarcascade_frontalface_alt2.xml')
-
+    '''
+    given 2 line segments,
+    the first one is defined by 2 points, x1 and x2
+    the second on is defined by 2 points, x3 and x4
+    this function return the length of ther intersection
+    '''
     @staticmethod
     def range_overlap(x1, x2, x3, x4):
         # print 'range_overlap'
@@ -40,6 +70,11 @@ class Detector():
             return 0
         return x_max - x_min
 
+    '''
+    given 2 rectangles and a threshold (percentage)
+    this function return if their overlapping area is bigger\
+    than 'percentage' percent of the smaller one
+    '''
     @staticmethod
     def rec_overlap(rec1, rec2, percentage):
         # print 'rec_overlap'
@@ -57,6 +92,11 @@ class Detector():
 
         return 1. * x_range * y_range / min(r1_area, r2_area) >= percentage
 
+    '''
+    given a list rectangles and the threshold (deg)
+    this function check if any pair of rectangles overlap >= 'deg' percent\
+    and remove one accordingly
+    '''
     @staticmethod
     def overlap_subtraction(recs, deg):
         # print 'overlap_substraction'
@@ -72,6 +112,11 @@ class Detector():
 
         return result
 
+    '''
+    this function check if any face (in the list of faces)\
+    belongs to any pedestrian (in the list of pedestrians)
+    and remove accordingly
+    '''
     def face_of_pede_subtraction(self, faces, pedes):
         # print 'face_of_pede_subtraction'
         new_faces = []
@@ -85,6 +130,12 @@ class Detector():
 
         return new_faces
 
+    '''
+    given a frame (or sub-frame), this function detects\
+    the pedestrians in that frame using HOG Detector
+    nw is the north-west point of this sub-frame in the\
+    whole original frame
+    '''
     def get_pedestrians(self, frame, nw):
         # print 'get_pedestrians'
 
@@ -97,6 +148,12 @@ class Detector():
 
         return Detector.overlap_subtraction(hog_recs, self.o_p_deg)
 
+    '''
+    given a frame (or sub-frame), this function detects\
+    the faces in that frame using Haar Cascades Detector
+    nw is the north-west point of this sub-frame in the\
+    whole original frame
+    '''
     def get_faces(self, frame, nw):
         # print 'get_faces'
 
@@ -108,6 +165,10 @@ class Detector():
 
         return Detector.overlap_subtraction(face_recs, self.o_f_deg)
 
+    '''
+    depend on frame index and target (face or pedes),\
+    this function will return the corresponding window
+    '''
     def get_sub_frame(self, frame, cnt, target):
         # print 'get_sub_frame'
 
@@ -131,6 +192,10 @@ class Detector():
 
         return north_west, frame[north_west[0]:south_east[0], north_west[1]:south_east[1], :]
 
+    '''
+    consolidate faces and pedestrians detected in the\
+    last frame
+    '''
     def consolidate(self, old_recs, frame, objective):
         # print 'consolidate'
 
@@ -144,6 +209,7 @@ class Detector():
             print 'objective must be either \'pedes\' or \'faces\''
             return []
 
+        '''default expand degree is 0.1'''
         result = []
         expand_idx = 0.1
 
@@ -163,6 +229,9 @@ class Detector():
 
         return Detector.overlap_subtraction(result, deg=deg)
 
+    '''
+    save the people detected for a time
+    '''
     def keep_memory(self, new, old, lastest_idx):
         min_accept_idx = lastest_idx - self.mem_size
 
@@ -177,58 +246,97 @@ class Detector():
 
         return new
 
+    '''This is the main function'''
     def run(self):
-
+        '''count the index number of the frame'''
         cnt = 0
+
+        '''list of pedestrians and faces detected'''
         pedes = []
         faces = []
 
+        '''
+        the number of people we have detected so far
+        use for testing and measuring performance
+        '''
         total_cnt = 0
-        cf = 0
+
+        '''
+        use to measure performance - time taken for each process
+        time_f - time to do face detection on windows
+        time_p - time to do pedestrian detection on windows
+        time_c - time to consilidate detected people
+        '''
         beg = datetime.datetime.now()
         time_f = datetime.datetime.now() - datetime.datetime.now()
         time_p = datetime.datetime.now() - datetime.datetime.now()
         time_c = datetime.datetime.now() - datetime.datetime.now()
 
         while True:
+            '''increase frame index'''
             cnt += 1
 
+            '''read next frame'''
             ret, frame = self.camera.read()
             assert ret, 'cannot read (more)'
 
+            '''flip the frame (optional)'''
             frame = np.fliplr(frame).astype('uint8')
+            '''store the resolution of the frame'''
             self.frame_shape = frame.shape[:2]
 
+            '''
+            detect pedestrian in a window
+            this window is corresponding to the frame index
+            '''
             b_p = datetime.datetime.now()
             nw, sub_frame = self.get_sub_frame(frame, cnt, target='pede')
             new_pedes = self.get_pedestrians(sub_frame, nw=nw)
             time_p += datetime.datetime.now() - b_p
 
+            '''
+            detect face in a window
+            this window is also corresponding to the frame index
+            '''
             b_f = datetime.datetime.now()
             nw, sub_frame = self.get_sub_frame(frame, cnt, target='face')
             new_faces = self.get_faces(sub_frame, nw=nw)
             time_f += datetime.datetime.now() - b_f
 
+            '''
+            consolidate the pedestrians and faces detected in the last loop
+            '''
             b_c = datetime.datetime.now()
             pedes = self.consolidate(pedes, frame, objective='pedes')
             faces = self.consolidate(faces, frame, objective='faces')
             time_c += datetime.datetime.now() - b_c
 
+            '''
+            check if any pair of faces or pedestrians point to the same object
+            if yes, remove 1 of them
+            '''
             pedes = Detector.overlap_subtraction(pedes + new_pedes, self.o_p_deg)
             faces = Detector.overlap_subtraction(faces + new_faces, self.o_f_deg)
             faces = self.face_of_pede_subtraction(faces, pedes)
 
+            '''count the number of people detected in all the frame so far'''
             total_cnt += len(pedes) + len(faces)
 
-            '''optional'''
+            '''
+            optional - save detected people in previous frame in memory
+            even if these people are not detected in the next frame, they\
+            are still be counted
+            '''
             new_mem_p = [(cnt, pede) for pede in pedes]
             self.memory_p = self.keep_memory(new_mem_p, self.memory_p, cnt)
 
             new_mem_f = [(cnt, face) for face in faces]
             self.memory_f = self.keep_memory(new_mem_f, self.memory_f, cnt)
 
+            '''output number of people detected in this frame'''
             print 'there are {} people'.format(len(self.memory_f) + len(self.memory_p))
 
+            '''draw rectangle around each person detected'''
             for (_, (x, y, w, h)) in self.memory_p:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 4)
 
@@ -243,19 +351,18 @@ class Detector():
 
             cv2.imshow('Human detection', frame)
 
-            cf +=1
-            print 'frame {}, time {}, {} counted'.format(cf, datetime.datetime.now() - beg, total_cnt)
-            if cf == 100:
-                print 'time_p: {}, time_f: {}, time_c: {}'.format(time_p, time_f, time_c)
-                break
+            '''The below 4 lines of code is used for measuring performance only'''
+            # print 'frame {}, time {}, {} counted'.format(cnt, datetime.datetime.now() - beg, total_cnt)
+            # if cnt == 100:
+            #     print 'time_p: {}, time_f: {}, time_c: {}'.format(time_p, time_f, time_c)
+            #     break
 
             if cv2.waitKey(1) == ord('q'):
                 break
 
         cv2.destroyAllWindows()
 
-
+'''Just declare an object and run'''
 if __name__ == '__main__':
-
     detector = Detector()
     detector.run()
